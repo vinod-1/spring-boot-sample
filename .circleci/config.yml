@@ -28,7 +28,7 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
           
-  build:
+  Check_Jar:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:8-jdk
