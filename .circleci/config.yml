@@ -34,6 +34,9 @@ jobs:
       - image: circleci/openjdk:8-jdk
     steps:
       - checkout
+      - run:
+          name: chmod permissions
+          command: chmod +x ./gradlew
       - run: ./gradlew bootJar
       - run: ls build/libs
 workflows:
