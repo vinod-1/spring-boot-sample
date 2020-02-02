@@ -41,9 +41,7 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - deploy:
+      - Check_Jar:
           requires:
             - build
-          filters:
-            branches:
-              only: sequential-branch-filter
+  
