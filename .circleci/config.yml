@@ -1,51 +1,48 @@
-# Java Gradle CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
 version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
-
+      - image: circleci/openjdk:8u222-jdk-stretch
     working_directory: ~/repo
-
     environment:
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-
+      GRADLE_OPTS: -Xmx3g
+      JVM_OPTS: -Xmx3g
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "build.gradle" }}
+            - m2-{{ checksum "build.gradle" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      #- run: gradle dependencies
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: v1-dependencies-{{ checksum "build.gradle" }}
-          
-  Check_Jar:
+            - m2-
+
+
+      
+  #Publish Jar to aws s3
+  publish_jar:
     docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8u222-jdk-stretch
     steps:
       - checkout
-      - run: export TERM=xterm
-      - run:
-          name: chmod permissions
-          command: chmod +x ./gradlew
-      - run: ./gradlew bootJar
+ #     - run:
+ #         name: Installing AWS CLI
+ #         command: |
+ #           sudo apt-get -y -qq update
+ #           sudo apt-get install -y awscli
+ #           sudo apt-get install -y python-pip python-dev build-essential
+ #           sudo pip install awsebcli --upgrade
+      - run: ./gradlew clean bootJar
       - run: ls build/libs
+ #     - run: mv build/libs/juna-cards-0.0.1-SNAPSHOT.jar build/libs/juna-cards-$CIRCLE_BUILD_NUM.jar
+ #     - run:
+ #         name: Deploying Jar to S3
+ #         command: |
+ #           aws s3 sync build/libs/ s3://$BUCKET --region ap-south-1
+
 workflows:
   version: 2
-  build-and-deploy:
+  build_and_test:
     jobs:
       - build
-      - Check_Jar:
+      - publish_jar:
           requires:
             - build
-  
